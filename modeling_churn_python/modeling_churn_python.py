@@ -50,6 +50,7 @@ authentications = authentications.merge(date_tracking, how='left', on=['uid', 'd
 # create some dummy categorical data for segmentation
 tiers = ['No Subscription', 'Basic Ad Supported', 'Premium Ad Free', 'Ultimate']
 countries = ['United States', 'Japan', 'Germany', 'United Kingdom', 'Brazil']
+channel_skus = ['ABC', 'DEF', 'GHI']
 
 ids = authentications[['uid']].drop_duplicates()
 
@@ -60,11 +61,11 @@ bin_edges = [1, 2, 5, 20, 254]
 quantiles['subscription_tier'] = pd.cut(quantiles['active_months'], bins=bin_edges, labels=tiers, include_lowest=True)
 
 # 2. Assign Channel SKU based on cohort effect (time-based stratification)
-quantiles['channel_sku'] = pd.cut(cohort_bins, bins=[0, 0.2, 0.7, 1], labels=['ABC', 'DEF', 'GHI'])
+quantiles['channel_sku'] = pd.cut(cohort_bins, bins=[0, 0.2, 0.7, 1], labels=channel_skus)
 
 # 3. Assign Country based on retention behavior (models regional expansion of an app or service)
 cohort_bins = quantiles['cohort_date'].rank(method='first', pct=True)  # Convert cohort_date into a percentile
-quantiles['country'] = pd.cut(cohort_bins, bins=[0, 0.2, 0.5, 0.7, 0.9, 1], labels=['United States', 'Japan', 'Germany', 'United Kingdom', 'Brazil'])
+quantiles['country'] = pd.cut(cohort_bins, bins=[0, 0.2, 0.5, 0.7, 0.9, 1], labels=countries)
 
 ids = ids.merge(quantiles[['uid', 'subscription_tier', 'channel_sku', 'country']], on='uid', how='left')
 
