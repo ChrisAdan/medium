@@ -69,6 +69,7 @@ quantiles['country'] = pd.cut(cohort_bins, bins=[0, 0.2, 0.5, 0.7, 0.9, 1], labe
 
 ids = ids.merge(quantiles[['uid', 'subscription_tier', 'channel_sku', 'country']], on='uid', how='left')
 
+# generate a left-skew synthetic distribution to represent the purchasing habits of the imagined user group
 
 from scipy.stats import skewnorm
 fig, ax = plt.subplots(1, 1)
@@ -97,6 +98,7 @@ ids['lifetime_transactions'] = r_rescaled
 
 auth_merged = authentications.merge(ids, how='left', on='uid')
 
+# Loop through months and aggregate in sequence - simple solution to potential memory overflow
 output_list = []
 for date in auth_merged.date.drop_duplicates().values.tolist():
     curr = auth_merged.loc[auth_merged.date == date].copy()
